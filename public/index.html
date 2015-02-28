@@ -15,7 +15,6 @@
 }
 #rothko {
 	width: 100%;
-	height: 2000px;
 	margin-top: -25px;
 	overflow: hidden;
 }
@@ -47,23 +46,30 @@ float: left;
 function App(args) {
 	var self = this;
 	this.feed = args.feed;
-
+	this.scrollDuration = args.scrollDuration;
+	this.totalHeight = 0;
 	var colorThief = new ColorThief();
-
-	this.render = function() {
-		this.getImages();
+	this.loadingImages = 0;
+	this.totalImagesLoaded = 0;
+	this.uid = 1;
+	this.getUID = function() {
+		return self.uid++;
 	}
 
+	this.render = function() {
+		self.resetScroll();
+		this.getImages();
+	}
+	this.callbackCounter = 1;
 	this.getImages = function() {
 		$.ajax({
 			method: "GET",
 			url: this.feed,
 			dataType: "jsonp",
                     	jsonp : "callback",
-                    	jsonpCallback: "jsonpcallback",
+                    	jsonpCallback: "jsonpcallback"+self.callbackCounter,
 			success: function(result) {
-
-var maxLikes = 0;
+				self.callbackCounter++;
 				var images = result.data.map(function(val) {
 
 					var img = val.images.low_resolution;
@@ -77,16 +83,20 @@ var maxLikes = 0;
 
 	}
 
-	this.showImages = function(images,maxLikes) {
-var html = [];
 
-var container = $('#imageContainer');
+	this.showImages = function(images) {
+
+		var container = $('#imageContainer');
+
+		var total = images.length;
+		var loaded = 0;
+
+		self.addedHeight = 0;
 		for (var i in images) {
 			var img = images[i];
 			var imgElmt = $('<img src="'+ img.url +'" crossOrigin="Anonymous" height="'+img.height+'" width="'+img.width+'" data-likes="'+img.likes+'">').load(function() {
-				$(this).appendTo(container);
+loaded++;
 				var color = colorThief.getColor(this);
-				console.log(color);
 				var hex = self.rgbToHex(color);
 				var height = ($(this).attr('data-likes') % 200);
 
@@ -102,16 +112,33 @@ var container = $('#imageContainer');
 					height = 800;
 				}
 
+				self.addedHeight += height;
+
 				var r = color[0];
 				var g = color[1];
 				var b = color[2];
 
 				var effects = '-webkit-box-shadow: 10px 10px 20px 20px rgba('+r+','+g+','+b+',0.75); -moz-box-shadow: 10px 10px 20px 20px rgba('+r+','+g+','+b+',0.75); box-shadow: 10px 10px 20px 20px rgba('+r+','+g+','+b+',0.75);'
 
-				var div = $('<div style="background:'+hex+'; height: '+height+'px; '+effects+'"></div>')
+				self.totalImagesLoaded++;
+				var div = $('<div id="img-'+self.getUID()+'" style="background:'+hex+'; height: '+height+'px; '+effects+'"></div>')
 
 
 				$('#rothko').append(div);
+
+				// start removing images from the top after we have a bunch loaded already
+				if (self.totalImagesLoaded > 30) {
+
+				//	var first = $('#rothko > div').first().attr('id');
+				//	self.totalImagesLoaded--;
+				//	$('#'+first).remove();
+				}
+
+				// start scrolling once images are mostly loaded
+				if (loaded >= total) {
+					self.loadingImages = 0;
+					self.beginScroll();
+				}
 			});
 		}
 	}
@@ -129,14 +156,40 @@ var container = $('#imageContainer');
 	}
 
 
-return this;
+	this.resetScroll = function() {
+		$("body").animate({ scrollTop: 0 }, 0);
+	}
+	this.beginScroll = function() {
+		var scroller = setInterval(function(){
+			var pos = $('body').scrollTop();
+			$('body').scrollTop(++pos);
+		}, 100);
+	}
+
+	this.events = function() {
+		$(window).scroll(function () { 
+			var scrollHeight = $(window).scrollTop();
+			if (scrollHeight > $(document).height() - 1600) {
+
+				if (self.loadingImages) {
+    
+				} else {
+    					self.loadingImages = 1;
+					console.log('near end - loading more images')
+					// get more images
+					self.getImages();
+				}
+			}
+		});
+	};
+	return this;
 };
 
 
 var app = new App({
-	feed: 'https://api.instagram.com/v1/media/popular?client_id=f3d5267b71cc41c6ba813e68498056f3'
+	feed: 'https://api.instagram.com/v1/media/popular?client_id=f3d5267b71cc41c6ba813e68498056f3',
 });
-
+app.events();
 app.render();
 
 </script>
