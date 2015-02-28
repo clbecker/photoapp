@@ -4,15 +4,25 @@
 <link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
 
 <script src="js/jquery-1.11.2.min.js"></script>
+<script src="js/color-thief.js"></script>
 <script src="bootstrap/js/bootstrap.min.js"></script>
 
 </head>
 <body>
 <style>
 #imageContainer {
- width: 500px;
- height: 2000px;
+
 }
+#rothko {
+	width: 500px;
+	height: 2000px;
+}
+
+#rothko > div {
+	float: left:
+
+}
+
 .cell {
 float: left;
 
@@ -24,9 +34,9 @@ float: left;
 
 }
 </style>
-<div id="imageContainer">
 
-</div>
+<div id="rothko"></div>
+<div id="imageContainer"></div>
 
 <script>
 
@@ -34,8 +44,9 @@ function App(args) {
 	var self = this;
 	this.feed = args.feed;
 
+	var colorThief = new ColorThief();
+
 	this.render = function() {
-		$('#imageContainer').html('aaaaaa');
 		this.getImages();
 	}
 
@@ -47,8 +58,14 @@ function App(args) {
                     	jsonp : "callback",
                     	jsonpCallback: "jsonpcallback",
 			success: function(result) {
+
+var maxLikes = 0;
 				var images = result.data.map(function(val) {
-					return val.images.low_resolution
+
+					var img = val.images.low_resolution;
+					img.likes = val.likes.count;
+					img.comments = val.comments.count;
+					return img;
 				});
 				self.showImages(images);
 			}
@@ -56,16 +73,43 @@ function App(args) {
 
 	}
 
-	this.showImages = function(images) {
+	this.showImages = function(images,maxLikes) {
 var html = [];
+
+var container = $('#imageContainer');
 		for (var i in images) {
 			var img = images[i];
-			html.push('<div class="cell" style="height: '+img.height+'px; width: '+img.width+'px; background-image: url('+img.url+')" ></div>');
-		}
-console.log(html);
-		$('#imageContainer').html(html.join(''));
+			var imgElmt = $('<img src="'+ img.url +'" crossOrigin="Anonymous" height="'+img.height+'" width="'+img.width+'" data-likes="'+img.likes+'">').load(function() {
+				$(this).appendTo(container);
+				var color = colorThief.getColor(this);
+				console.log(color);
+				var hex = self.rgbToHex(color);
+				var height = $(this).attr('data-likes') % 200;
+				if (height < 5) {
+					height  = 5;
+				}
+				if (height > 400) {
+					height = 400;
+				}
 
+				var div = $('<div style="background:'+hex+'; height: '+height+'px; width: 100%"></div>')
+				$('#rothko').append(div);
+			});
+		}
 	}
+
+	this.rgbToHex = function (color) {
+		var r = color[0];
+		var g = color[1];
+		var b = color[2];
+		return "#" + self.DecToHex(r) + self.DecToHex(g) + self.DecToHex(b);
+	}
+
+	this.DecToHex = function(dec) {
+    		var hex = dec.toString(16);
+   		return hex.length == 1 ? "0" + hex : hex;
+	}
+
 
 return this;
 };
@@ -73,6 +117,8 @@ return this;
 
 var app = new App({
 	feed: 'https://api.instagram.com/v1/media/popular?client_id=f3d5267b71cc41c6ba813e68498056f3'
+
+//	feed: 'https://api.instagram.com/v1/tags/search?q=cat&client_id=f3d5267b71cc41c6ba813e68498056f3'
 });
 
 app.render();
