@@ -88,12 +88,18 @@ var container = $('#imageContainer');
 				var color = colorThief.getColor(this);
 				console.log(color);
 				var hex = self.rgbToHex(color);
-				var height = $(this).attr('data-likes') % 200;
+				var height = ($(this).attr('data-likes') % 200);
+
+				// add some variability to color height
+				if (height > 100) {
+					height *= 2;
+				}
+
 				if (height < 5) {
 					height  = 5;
 				}
-				if (height > 400) {
-					height = 400;
+				if (height > 800) {
+					height = 800;
 				}
 
 				var r = color[0];
@@ -101,7 +107,6 @@ var container = $('#imageContainer');
 				var b = color[2];
 
 				var effects = '-webkit-box-shadow: 10px 10px 20px 20px rgba('+r+','+g+','+b+',0.75); -moz-box-shadow: 10px 10px 20px 20px rgba('+r+','+g+','+b+',0.75); box-shadow: 10px 10px 20px 20px rgba('+r+','+g+','+b+',0.75);'
-
 
 				var div = $('<div style="background:'+hex+'; height: '+height+'px; '+effects+'"></div>')
 
