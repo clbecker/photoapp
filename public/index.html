@@ -11,26 +11,30 @@
 <body>
 <style>
 #imageContainer {
-
+	display: none;
 }
 #rothko {
-	width: 500px;
+	width: 100%;
 	height: 2000px;
+	margin-top: -25px;
+	overflow: hidden;
 }
 
-#rothko > div {
-	float: left:
 
+#rothko > div {
+	width: 120%;
+	float: left;
+	margin-left: -50px;
+	margin-right: -50px;
+	-webkit-filter: blur(20px);
+	-moz-filter: blur(20px);
+	-o-filter: blur(20px);
+	-ms-filter: blur(20px);
+	filter: blur(20px);
 }
 
 .cell {
 float: left;
-
--webkit-filter: blur(20px);
-  -moz-filter: blur(20px);
-  -o-filter: blur(20px);
-  -ms-filter: blur(20px);
-  filter: blur(20px);
 
 }
 </style>
@@ -92,7 +96,16 @@ var container = $('#imageContainer');
 					height = 400;
 				}
 
-				var div = $('<div style="background:'+hex+'; height: '+height+'px; width: 100%"></div>')
+				var r = color[0];
+				var g = color[1];
+				var b = color[2];
+
+				var effects = '-webkit-box-shadow: 10px 10px 20px 20px rgba('+r+','+g+','+b+',0.75); -moz-box-shadow: 10px 10px 20px 20px rgba('+r+','+g+','+b+',0.75); box-shadow: 10px 10px 20px 20px rgba('+r+','+g+','+b+',0.75);'
+
+
+				var div = $('<div style="background:'+hex+'; height: '+height+'px; '+effects+'"></div>')
+
+
 				$('#rothko').append(div);
 			});
 		}
@@ -117,8 +130,6 @@ return this;
 
 var app = new App({
 	feed: 'https://api.instagram.com/v1/media/popular?client_id=f3d5267b71cc41c6ba813e68498056f3'
-
-//	feed: 'https://api.instagram.com/v1/tags/search?q=cat&client_id=f3d5267b71cc41c6ba813e68498056f3'
 });
 
 app.render();
