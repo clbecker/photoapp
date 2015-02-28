@@ -1,0 +1,84 @@
+<html>
+<head>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="bootstrap/css/bootstrap.min.css">
+
+<script src="js/jquery-1.11.2.min.js"></script>
+<script src="bootstrap/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<style>
+#imageContainer {
+ width: 500px;
+ height: 2000px;
+}
+.cell {
+float: left;
+
+-webkit-filter: blur(20px);
+  -moz-filter: blur(20px);
+  -o-filter: blur(20px);
+  -ms-filter: blur(20px);
+  filter: blur(20px);
+
+}
+</style>
+<div id="imageContainer">
+
+</div>
+
+<script>
+
+function App(args) {
+	var self = this;
+	this.feed = args.feed;
+
+	this.render = function() {
+		$('#imageContainer').html('aaaaaa');
+		this.getImages();
+	}
+
+	this.getImages = function() {
+		$.ajax({
+			method: "GET",
+			url: this.feed,
+			dataType: "jsonp",
+                    	jsonp : "callback",
+                    	jsonpCallback: "jsonpcallback",
+			success: function(result) {
+				var images = result.data.map(function(val) {
+					return val.images.low_resolution
+				});
+				self.showImages(images);
+			}
+		});
+
+	}
+
+	this.showImages = function(images) {
+var html = [];
+		for (var i in images) {
+			var img = images[i];
+			html.push('<div class="cell" style="height: '+img.height+'px; width: '+img.width+'px; background-image: url('+img.url+')" ></div>');
+		}
+console.log(html);
+		$('#imageContainer').html(html.join(''));
+
+	}
+
+return this;
+};
+
+
+var app = new App({
+	feed: 'https://api.instagram.com/v1/media/popular?client_id=f3d5267b71cc41c6ba813e68498056f3'
+});
+
+app.render();
+
+</script>
+
+
+</body>
+</html>
