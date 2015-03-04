@@ -10,6 +10,35 @@
 </head>
 <body>
 <style>
+@font-face {
+	font-family: 'Circular-Book';
+	src: url(fonts/circular-std-med.otf);
+}
+
+a {
+	color: #444444;
+	transition: all 0.4s ease-in-out;
+}
+
+a:hover {
+	color: #44444;
+}
+
+a:active {
+	color: #44444;
+}
+
+
+h1 {
+	font-family: 'Circular-Book', Helvetica, sans-serif !important;
+	color: #444444 !important;
+}
+
+h4 {
+	font-family: 'Circular-Book', Helvetica, sans-serif !important;
+	color: #444444 !important;
+}
+
 #imageContainer {
 	display: none;
 }
@@ -36,7 +65,38 @@
 float: left;
 
 }
+
+.intro {
+	position: fixed;
+	width: 100%;
+	height: 120%;
+	display: block; 
+	margin: 0 auto; 
+	margin-top: 0px; 
+	text-align: center;
+	background-color: #FBFBFB; 
+	opacity: 1; 
+	z-index: 9999; 
+}
+
 </style>
+
+<div class="well intro">
+<div class="col-sm-12">
+  <div class="container-window">
+    <img src="img/rothkode.svg" width="100px" height="auto" style="margin-top: 20px;">
+    <h1 class="header" style="text-align: center; margin-bottom: 40px;">
+      Rothkode
+    </h1>
+ 	<h4>A Rothko inspired visual stream powered by Instagram.</h4>
+  </div>
+ 
+  <div class="" style="text-align: center; height: 10%; margin-top: 10%; font-size: 70px;">
+  <a id="play"><i class="glyphicon glyphicon-play-circle"></i></a>
+  </div>
+
+</div>
+</div>
 
 <div id="rothko"></div>
 <div id="imageContainer"></div>
@@ -133,12 +193,13 @@ loaded++;
 				//	self.totalImagesLoaded--;
 				//	$('#'+first).remove();
 				}
+				
 
 				// start scrolling once images are mostly loaded
-				if (loaded >= total) {
-					self.loadingImages = 0;
-					self.beginScroll();
-				}
+				//if (loaded >= total) {
+				//	self.loadingImages = 0;
+				//	self.beginScroll();
+				//}
 			});
 		}
 	}
@@ -181,6 +242,12 @@ loaded++;
 				}
 			}
 		});
+
+		$('#play').click(function() {
+			$('.intro').fadeOut(500);
+			self.beginScroll();
+					})
+
 	};
 	return this;
 };
